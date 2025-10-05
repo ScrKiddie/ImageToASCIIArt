@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Image To ASCII Art Converter</title>
+
+    <link rel="stylesheet" href="assets/css/style.css">
+
+    <script>
+        (function() {
+            const savedTheme = localStorage.getItem('theme');
+            const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+            if (savedTheme === 'dark' || (!savedTheme && systemPrefersDark)) {
+                document.documentElement.classList.add('dark-mode');
+            }
+        })();
+    </script>
+</head>
+<body>
+
+<h2 style="text-align: center;">Image To ASCII Art Converter</h2>
+
+<div class="theme-switch-wrapper">
+    <span>Light</span>
+    <label class="theme-switch" for="theme-toggle">
+        <input type="checkbox" id="theme-toggle" title="Toggle dark mode"/>
+        <span class="slider round"></span>
+    </label>
+    <span>Dark</span>
+</div>
+
+<p class="promo-link">
+    <a href="https://github.com/ScrKiddie/ImageToASCIIArt" target="_blank" rel="noopener noreferrer">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27s1.36.09 2 .27c1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8"/></svg>
+        ImageToASCIIArt by ScrKiddie
+    </a>
+</p>
+
+<div class="container">
+    <div class="controls-column">
+        <div class="panel">
+            <h5 style="font-weight: bold; font-size: 1.1em; margin-bottom: 10px">1. Choose an image</h5>
+            <div class="file-input-wrapper" style="margin-top: 10px;">
+                <input type="file" id="image" name="image" accept="image/png, image/jpeg" class="file-input" required>
+                <label for="image" class="file-input-label" id="file-label">Choose Image File</label>
+            </div>
+            <div class="file-info" id="file-info"></div>
+            <div class="progress-bar" id="progress-bar" style="display: none;">
+                <div class="progress-fill" id="progress-fill"></div>
+            </div>
+        </div>
+
+        <div id="controls-container" class="controls-container panel">
+            <h5 style="font-weight: bold; font-size: 1.1em; margin-bottom: 10px">2. Image Adjustments</h5>
+
+            <div class="form-group">
+                <label for="width">ASCII Width: <span id="width-value">150</span></label>
+                <input type="range" id="width" name="width" min="20" max="250" value="150" step="1">
+                <small>Recommended: 80-200 characters</small>
+            </div>
+            <div class="form-group">
+                <label for="brightness">Brightness: <span id="brightness-value">0</span></label>
+                <input type="range" id="brightness" name="brightness" min="-100" max="100" value="0" step="1">
+                <small>Range: -100 (dark) to +100 (bright)</small>
+            </div>
+            <div class="form-group">
+                <label for="contrast">Contrast: <span id="contrast-value">0</span></label>
+                <input type="range" id="contrast" name="contrast" min="-100" max="100" value="0" step="1">
+                <small>Range: -100 (low) to +100 (high)</small>
+            </div>
+            <div class="form-group" style="margin-bottom: 0;">
+                <label for="sharpen">Sharpening: <span id="sharpen-value">0.0</span></label>
+                <input type="range" id="sharpen" name="sharpen" min="0" max="5" value="0" step="0.1">
+                <small>Range: 0 (none) to 5 (strong)</small>
+            </div>
+        </div>
+    </div>
+
+    <div class="result-column">
+        <div class="result-container panel" id="result-container">
+            <div class="loading-overlay" id="loading-overlay">
+                <div class="spinner"></div>
+            </div>
+            <div id="result-content" style="color: var(--subtle-text-color); text-align: center;">
+                <div style="padding: 12px; border-radius: 6px; background-color: var(--info-box-bg);">
+                    <strong>Getting Started:</strong><br>
+                    1. Choose an image file (PNG/JPEG)<br>
+                    2. Adjust parameters to your liking<br>
+                    3. Watch the magic happen! ✨
+                </div>
+            </div>
+            <div class="download-buttons" id="download-buttons">
+                <button id="download-svg-btn">Download SVG</button>
+                <button id="download-png-btn">Download PNG</button>
+                <button id="download-jpg-btn">Download JPG</button>
+            </div>
+        </div>
+
+        <div id="color-controls-container" class="controls-container panel">
+            <h5 style="font-weight: bold; font-size: 1.1em; margin-bottom: 10px">3. Color Settings</h5>
+            <div class="form-group">
+                <label for="background-color">Background Color:</label>
+                <div style="margin-bottom: 10px"></div>
+                <div class="color-picker-group">
+                    <div class="color-picker-wrapper">
+                        <input type="color" id="background-color" class="color-input" value="#000000">
+                        <input type="text" id="background-color-text" class="color-text" value="#000000" placeholder="#000000">
+                    </div>
+                </div>
+                <div class="preset-colors" id="bg-preset-colors">
+                    <div class="preset-color active" style="background-color: #000000" data-color="#000000" title="Black"></div>
+                    <div class="preset-color" style="background-color: #ffffff; border: 1px solid #ccc;" data-color="#ffffff" title="White"></div>
+                    <div class="preset-color" style="background-color: #1a1a1a" data-color="#1a1a1a" title="Dark Gray"></div>
+                    <div class="preset-color" style="background-color: #2d3748" data-color="#2d3748" title="Slate"></div>
+                    <div class="preset-color" style="background-color: #1e3a8a" data-color="#1e3a8a" title="Navy Blue"></div>
+                    <div class="preset-color" style="background-color: #7c2d12" data-color="#7c2d12" title="Brown"></div>
+                    <div class="preset-color" style="background-color: #14532d" data-color="#14532d" title="Dark Green"></div>
+                </div>
+                <small>Choose background color for ASCII art</small>
+            </div>
+
+            <div class="transparency-section" id="transparency-section">
+                <div class="transparency-info">
+                    <strong>Transparency Handling (PNG only):</strong> Choose a color to replace transparent areas.
+                </div>
+                <div class="form-group">
+                    <label for="transparency-color">Transparency Color:</label>
+                    <div style="margin-bottom: 10px"></div>
+                    <div class="color-picker-group">
+                        <div class="color-picker-wrapper">
+                            <input type="color" id="transparency-color" class="color-input" value="#FFFFFF">
+                            <input type="text" id="transparency-color-text" class="color-text" value="#FFFFFF" placeholder="#FFFFFF">
+                        </div>
+                    </div>
+                    <div class="preset-colors" id="transparency-preset-colors">
+                        <div class="preset-color" style="background-color: #000000" data-color="#000000" title="Black"></div>
+                        <div class="preset-color active" style="background-color: #ffffff; border: 1px solid #ccc;" data-color="#ffffff" title="White"></div>
+                        <div class="preset-color" style="background-color: #ff0000" data-color="#ff0000" title="Red"></div>
+                        <div class="preset-color" style="background-color: #00ff00" data-color="#00ff00" title="Green"></div>
+                        <div class="preset-color" style="background-color: #0000ff" data-color="#0000ff" title="Blue"></div>
+                        <div class="preset-color" style="background-color: #ffff00" data-color="#ffff00" title="Yellow"></div>
+                        <div class="preset-color" style="background-color: #ff00ff" data-color="#ff00ff" title="Magenta"></div>
+                    </div>
+                    <small>Choose color to represent transparent areas in PNG images</small>
+                </div>
+                <div class="form-group" style="margin-bottom: 0;">
+                    <label for="transparency-threshold">Transparency Threshold: <span id="transparency-threshold-value">1.00</span></label>
+                    <input type="range" id="transparency-threshold" name="transparency-threshold" min="0" max="1" step="0.01" value="1">
+                    <small>Higher values treat more semi-transparent pixels as fully transparent.</small>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="toast-container"></div>
+
+<script src="wasm_exec.js"></script>
+<script src="assets/js/app.js"></script>
+
+</body>
+</html>

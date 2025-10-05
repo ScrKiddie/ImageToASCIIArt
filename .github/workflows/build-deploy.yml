@@ -1,0 +1,59 @@
+name: Build & Deploy WASM to GitHub Pages
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+env:
+  GO_VERSION: '1.24'
+
+jobs:
+  build:
+    name: Build Web Assets
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: ${{ env.GO_VERSION }}
+          cache: true
+
+      - name: Build WASM file with standard Go
+        run: GOOS=js GOARCH=wasm go build -o build/main.wasm ./main.go
+
+      - name: Prepare web assets
+        run: |
+          echo "copying WASM file to web directory"
+          cp build/main.wasm ./web/main.wasm
+          
+          echo "downloading wasm_exec.js from standard Go environment"
+          cp "$(go env GOROOT)/lib/wasm/wasm_exec.js" ./web/wasm_exec.js
+          
+          echo "web assets prepared successfully"
+
+      - name: Upload web artifact
+        uses: actions/upload-pages-artifact@v4
+        with:
+          path: './web'
+
+  deploy:
+    name: Deploy to GitHub Pages
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
