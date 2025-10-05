@@ -24,7 +24,7 @@ document.addEventListener('DOMContentLoaded', () => {
             sharpen: $('sharpen-value'), transparencyThreshold: $('transparency-threshold-value'),
         }
     };
-
+    DOM.themeToggle.checked = document.documentElement.classList.contains('dark-mode');
     const setDownloadButtonsState = (disabled) => [DOM.downloadSvgBtn, DOM.downloadPngBtn, DOM.downloadJpgBtn].forEach(btn => btn.disabled = disabled);
     setDownloadButtonsState(true);
 
@@ -184,7 +184,11 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     DOM.imageInput.addEventListener('change', handleImageChange);
-    DOM.themeToggle.addEventListener('change', () => document.documentElement.classList.toggle('dark-mode', DOM.themeToggle.checked));
+    DOM.themeToggle.addEventListener('change', () => {
+        const isDark = DOM.themeToggle.checked;
+        document.documentElement.classList.toggle('dark-mode', isDark);
+        localStorage.setItem('theme', isDark ? 'dark' : 'light');
+    });
     DOM.downloadSvgBtn.addEventListener('click', () => downloadResult('svg'));
     DOM.downloadPngBtn.addEventListener('click', () => downloadResult('png'));
     DOM.downloadJpgBtn.addEventListener('click', () => downloadResult('jpg'));
