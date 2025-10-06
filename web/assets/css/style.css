@@ -63,7 +63,7 @@ input:checked + .slider:before { transform: translateX(24px); }
 .result-column > .panel + .panel { margin-top: 0; }
 
 .result-container {
-    min-height: 250px; display: flex; flex-direction: column;
+    min-height: fit-content; display: flex; flex-direction: column;
     align-items: center; justify-content: center; overflow: hidden;
 }
 
