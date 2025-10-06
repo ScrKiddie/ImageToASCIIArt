@@ -27,7 +27,7 @@ document.addEventListener('DOMContentLoaded', () => {
     DOM.themeToggle.checked = document.documentElement.classList.contains('dark-mode');
     const setDownloadButtonsState = (disabled) => [DOM.downloadSvgBtn, DOM.downloadPngBtn, DOM.downloadJpgBtn].forEach(btn => btn.disabled = disabled);
     setDownloadButtonsState(true);
-
+    DOM.imageInput.disabled = true;
     const formatFileSize = (bytes) => {
         if (bytes === 0) return '0 Bytes';
         const k = 1024, i = Math.floor(Math.log(bytes) / Math.log(k));
@@ -199,11 +199,13 @@ document.addEventListener('DOMContentLoaded', () => {
             const result = await WebAssembly.instantiateStreaming(fetch("main.wasm"), go.importObject);
             go.run(result.instance);
             wasmLoaded = true;
+            DOM.imageInput.disabled = false;
             showMessage('Converter is ready!', 'success', 3000);
         } catch (err) {
             console.error("Wasm initialization failed:", err);
             showMessage('Failed to load core component. Please refresh.', 'error', 10000);
             DOM.fileLabel.disabled = true;
+            DOM.imageInput.disabled = true;
             DOM.fileLabel.textContent = 'Wasm Loading Failed';
         }
     })();
